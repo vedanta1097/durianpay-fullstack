@@ -1,3 +1,7 @@
 # macOS
 .DS_Store
-data/dashboard.db
+
+# Runtime SQLite files
+backend/dashboard.db
+backend/dashboard.db-shm
+backend/dashboard.db-wal

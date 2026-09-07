@@ -128,7 +128,7 @@ Update `openapi.yaml` before implementing payment code, then regenerate both con
 - Define `PaymentStatus` as `completed | processing | failed`.
 - Define amount as an integer (`int64`) in IDR's smallest used unit; never use floating point for money.
 - Define `created_at` as RFC 3339 `date-time` in UTC.
-- Make the error response match the implementation: stable string code plus human-readable message.
+- Preserve the starter error response shape: integer `code` (the HTTP status code) plus a human-readable `message`. Align the provided error writer to this contract during the backend phase.
 - Document success, invalid request, unauthenticated, and internal-error responses.
 - Keep the existing endpoint paths. Do not add a review endpoint unless the assignment or contract is deliberately expanded later.
 

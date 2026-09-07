@@ -47,6 +47,7 @@ When sources conflict, preserve the assignment requirement, document the interpr
 ## OpenAPI-first workflow
 
 - Treat root `openapi.yaml` as the only hand-authored request/response schema.
+- Preserve the starter contract's existing field types and shapes unless an explicit assignment requirement requires a change. Do not replace an established type solely for a preferred convention; for example, keep an existing integer error code as an integer.
 - Change the contract first for any API shape change.
 - Regenerate both `backend/internal/openapigen/` and the frontend generated API types after a contract change.
 - Never hand-edit generated files. Generated files must carry a generated-code header where supported.

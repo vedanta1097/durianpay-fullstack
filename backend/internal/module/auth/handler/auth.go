@@ -32,7 +32,12 @@ func (a *AuthHandler) PostDashboardV1AuthLogin(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(openapigen.LoginResponse{Email: &user.Email, Role: &user.Role, Token: &token})
+	role := openapigen.UserRole(user.Role)
+	err = json.NewEncoder(w).Encode(openapigen.LoginResponse{
+		Email: user.Email,
+		Role:  role,
+		Token: token,
+	})
 	if err != nil {
 		transport.WriteAppError(w, entity.ErrorInternal("internal server error"))
 		return

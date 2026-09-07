@@ -40,16 +40,32 @@ components:
     
     User:
       type: object
+      required:
+        - email
+        - role
+        - token
       properties:
         email:
           type: string
         role:
-          type: string
+          $ref: '#/components/schemas/UserRole'
         token:
           type: string
 
+    UserRole:
+      type: string
+      enum:
+        - cs
+        - operation
+
     Payment:
       type: object
+      required:
+        - id
+        - merchant
+        - status
+        - amount
+        - created_at
       properties:
         id:
           type: string
@@ -58,14 +74,22 @@ components:
           type: string
           example: "Merchant A"
         status:
-          type: string
-          example: "completed , processing , or failed"
+          $ref: '#/components/schemas/PaymentStatus'
         amount:
-          type: string
-          example: "alice@example.com"
+          type: integer
+          format: int64
+          minimum: 0
+          example: 125000
         created_at:
           type: string
           format: date-time
+
+    PaymentStatus:
+      type: string
+      enum:
+        - completed
+        - processing
+        - failed
 
   responses:
     LoginResponse:
@@ -128,7 +152,7 @@ paths:
         - in: query
           name: status
           schema:
-            type: string
+            $ref: '#/components/schemas/PaymentStatus'
           description: status of payment (completed , processing , or failed)
         - in: query
           name: id
@@ -142,4 +166,3 @@ paths:
           $ref: '#/components/responses/PaymentListResponse'
         "401":
           $ref: '#/components/responses/UnauthorizedError'
-
