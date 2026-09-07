@@ -5,3 +5,9 @@
 backend/dashboard.db
 backend/dashboard.db-shm
 backend/dashboard.db-wal
+
+# Frontend runtime and build files
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/*.tsbuildinfo
