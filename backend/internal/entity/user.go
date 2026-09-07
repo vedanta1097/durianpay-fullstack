@@ -6,3 +6,12 @@ type User struct {
 	PasswordHash string `json:"-"`
 	Role         string `json:"role"`
 }
+
+const (
+	RoleCS        = "cs"
+	RoleOperation = "operation"
+)
+
+func IsSupportedRole(role string) bool {
+	return role == RoleCS || role == RoleOperation
+}

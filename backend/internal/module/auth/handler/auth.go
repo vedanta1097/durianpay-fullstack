@@ -26,13 +26,14 @@ func (a *AuthHandler) PostDashboardV1AuthLogin(w http.ResponseWriter, r *http.Re
 	if !decodeJSONBody(w, r, &req) {
 		return
 	}
-	token, user, err := a.authUC.Login(req.Email, req.Password)
+	token, user, err := a.authUC.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		transport.WriteError(w, err)
 		return
 	}
 
 	role := openapigen.UserRole(user.Role)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(openapigen.LoginResponse{
 		Email: user.Email,
 		Role:  role,

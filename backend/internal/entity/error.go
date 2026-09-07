@@ -15,6 +15,19 @@ const (
 	ErrorCodeBadRequest   Code = "bad_request"
 )
 
+func (c Code) HTTPStatus() int {
+	switch c {
+	case ErrorCodeBadRequest:
+		return 400
+	case ErrorCodeUnauthorized:
+		return 401
+	case ErrorCodeNotFound:
+		return 404
+	default:
+		return 500
+	}
+}
+
 type AppError struct {
 	Code    Code   `json:"code"`
 	Message string `json:"message"`

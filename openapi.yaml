@@ -30,10 +30,8 @@ components:
       properties:
         code:
           type: integer
-          example: 401
         message:
           type: string
-          example: "Unauthenticated: missing or invalid token"
       required:
         - code
         - message
@@ -121,6 +119,30 @@ components:
               value:
                 code: 401
                 message: "Unauthenticated: missing or invalid token"
+    BadRequestError:
+      description: Request body or query parameter is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalidRequest:
+              summary: Invalid request body or query parameter
+              value:
+                code: 400
+                message: "invalid request"
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            internalServerError:
+              summary: Unexpected server error
+              value:
+                code: 500
+                message: "internal server error"
 
 paths:
   /dashboard/v1/auth/login:
@@ -141,8 +163,12 @@ paths:
       responses:
         "200":
           $ref: '#/components/responses/LoginResponse'
+        "400":
+          $ref: '#/components/responses/BadRequestError'
         "401":
           $ref: '#/components/responses/UnauthorizedError'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /dashboard/v1/payments:
     get:
@@ -164,5 +190,9 @@ paths:
       responses:
         "200":
           $ref: '#/components/responses/PaymentListResponse'
+        "400":
+          $ref: '#/components/responses/BadRequestError'
         "401":
           $ref: '#/components/responses/UnauthorizedError'
+        "500":
+          $ref: '#/components/responses/InternalServerError'

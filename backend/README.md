@@ -1,30 +1,32 @@
-Scaffold demonstrating entity / repository / usecase / service separation.
+# Backend
 
-generate openapi:
+Go API for the internal payment dashboard. It uses SQLite, creates the schema on startup, and safely reuses the same deterministic seed records on subsequent runs.
 
-```bash
-make openapi-gen
-```
-
-generate JWT_SECRET:
-
-```bash
-make gen-secret
-```
-
-Run server:
+## Run locally
 
 ```bash
 cp env.sample .env
-make tool-openapi
-make openapi-gen
-make dep
-make gen-secret
+make setup
 make run
 ```
 
-API:
+The API listens on `http://localhost:8080` by default. The root OpenAPI contract is at `../openapi.yaml`.
 
-- POST /dashboard/v1/auth/login {email,password}
-- GET /dashboard/v1/payments?sort=sort,status=status,id=id
-- PUT /dashboard/v1/payment/{id}/review
+Seed users:
+
+- `cs@test.com` / `password`
+- `operation@test.com` / `password`
+
+Useful commands:
+
+```bash
+make openapi-gen
+make openapi-check
+make format-check
+make lint
+make test
+make build
+make gen-secret
+```
+
+`openapi-gen` uses the repository-pinned generator version; it never installs a global or `latest` version.
