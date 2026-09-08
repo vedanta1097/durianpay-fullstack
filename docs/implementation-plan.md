@@ -152,9 +152,17 @@ Update `openapi.yaml` before implementing payment code, then regenerate both con
       "amount": 125000,
       "created_at": "2026-03-10T08:15:00Z"
     }
-  ]
+  ],
+  "summary": {
+    "total": 30,
+    "completed": 13,
+    "processing": 9,
+    "failed": 8
+  }
 }
 ```
+
+The summary always represents the complete payment dataset, while the optional status or ID filter narrows only the returned `payments` array. This keeps the dashboard totals stable while allowing the table query to remain server-side.
 
 ### Validation and status behavior
 
@@ -268,9 +276,9 @@ Do not duplicate the token in component state, API-client state, and the store. 
 
 ### Payment state
 
-Fetch the full seeded payment list once per dashboard visit. Keep the fetched array, loading state, and request error together in the dashboard feature. Keep the selected status filter in one local state value and derive the visible rows and summary with selectors/memoized calculations.
+Fetch the payment endpoint once per dashboard visit and again whenever the selected status changes. Keep the response, loading state, request error, and selected filter in the dashboard feature. The table renders the filtered `payments` returned by the backend, while the summary renders the stable aggregate returned in the same response.
 
-The backend status-filter endpoint is still implemented and tested as part of the API contract. Client-side filtering is intentional here because the contract returns a full, small list and the same canonical array can drive both the stable overall summary and visible rows without a second request or duplicated server state.
+Status filtering is server-side so the frontend does not need to download every payment merely to display one status. The response summary remains global rather than following the selected status; this keeps all status totals useful as navigation context. If pagination is added later, the same response semantics continue to work without deriving totals from one page.
 
 ### Component boundaries
 

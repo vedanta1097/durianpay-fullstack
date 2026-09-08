@@ -9,8 +9,9 @@ import (
 )
 
 type paymentRepositoryStub struct {
-	filter repository.ListFilter
-	called bool
+	filter  repository.ListFilter
+	called  bool
+	summary entity.PaymentSummary
 }
 
 func (s *paymentRepositoryStub) ListPayments(_ context.Context, filter repository.ListFilter) ([]entity.Payment, error) {
@@ -19,11 +20,15 @@ func (s *paymentRepositoryStub) ListPayments(_ context.Context, filter repositor
 	return []entity.Payment{}, nil
 }
 
+func (s *paymentRepositoryStub) GetPaymentSummary(_ context.Context) (entity.PaymentSummary, error) {
+	return s.summary, nil
+}
+
 func TestListPaymentsPassesValidatedFilterToRepository(t *testing.T) {
-	repo := &paymentRepositoryStub{}
+	repo := &paymentRepositoryStub{summary: entity.PaymentSummary{Total: 30, Completed: 13, Processing: 9, Failed: 8}}
 	usecase := NewPaymentUsecase(repo)
 
-	_, err := usecase.ListPayments(context.Background(), ListInput{Status: entity.PaymentStatusCompleted, ID: "PAY-0001", Sort: "-amount,created_at"})
+	result, err := usecase.ListPayments(context.Background(), ListInput{Status: entity.PaymentStatusCompleted, ID: "PAY-0001", Sort: "-amount,created_at"})
 	if err != nil {
 		t.Fatalf("ListPayments() error = %v", err)
 	}
@@ -35,6 +40,9 @@ func TestListPaymentsPassesValidatedFilterToRepository(t *testing.T) {
 	}
 	if repo.filter.Sort != "amount DESC, created_at ASC, id DESC" {
 		t.Fatalf("sort = %q", repo.filter.Sort)
+	}
+	if result.Summary != repo.summary {
+		t.Fatalf("summary = %#v", result.Summary)
 	}
 }
 

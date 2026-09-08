@@ -21,6 +21,7 @@ help:
 
 setup:
 	$(GO) mod download
+	@if [ ! -f .env ]; then cp env.sample .env; echo "Created backend/.env from backend/env.sample"; fi
 
 openapi-gen:
 	$(GO) run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@$(OPENAPI_GENERATOR_VERSION) -generate "types,chi-server,spec" -package openapigen -o $(GEN_PKG)/openapi.gen.go $(OPENAPI)

@@ -57,7 +57,7 @@ export interface paths {
                      *      */
                     sort?: components["parameters"]["sort"];
                     /** @description status of payment (completed , processing , or failed) */
-                    status?: components["schemas"]["PaymentStatus"];
+                    status?: "completed" | "processing" | "failed";
                     /** @description payment id */
                     id?: string;
                 };
@@ -112,6 +112,16 @@ export interface components {
         };
         /** @enum {string} */
         PaymentStatus: "completed" | "processing" | "failed";
+        PaymentSummary: {
+            /** @example 30 */
+            total: number;
+            /** @example 13 */
+            completed: number;
+            /** @example 9 */
+            processing: number;
+            /** @example 8 */
+            failed: number;
+        };
     };
     responses: {
         /** @description return token and user information */
@@ -130,7 +140,8 @@ export interface components {
             };
             content: {
                 "application/json": {
-                    payments?: components["schemas"]["Payment"][];
+                    payments: components["schemas"]["Payment"][];
+                    summary: components["schemas"]["PaymentSummary"];
                 };
             };
         };

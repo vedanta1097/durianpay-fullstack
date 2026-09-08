@@ -16,6 +16,18 @@ type Payment struct {
 	CreatedAt time.Time
 }
 
+type PaymentSummary struct {
+	Total      int
+	Completed  int
+	Processing int
+	Failed     int
+}
+
+type PaymentList struct {
+	Payments []Payment
+	Summary  PaymentSummary
+}
+
 func IsSupportedPaymentStatus(status string) bool {
 	return status == PaymentStatusCompleted || status == PaymentStatusProcessing || status == PaymentStatusFailed
 }

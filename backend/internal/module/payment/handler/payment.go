@@ -30,14 +30,14 @@ func (h *PaymentHandler) GetDashboardV1Payments(w http.ResponseWriter, r *http.R
 		input.Sort = string(*params.Sort)
 	}
 
-	payments, err := h.paymentUC.ListPayments(r.Context(), input)
+	result, err := h.paymentUC.ListPayments(r.Context(), input)
 	if err != nil {
 		transport.WriteError(w, err)
 		return
 	}
 
-	responsePayments := make([]openapigen.Payment, 0, len(payments))
-	for _, payment := range payments {
+	responsePayments := make([]openapigen.Payment, 0, len(result.Payments))
+	for _, payment := range result.Payments {
 		responsePayments = append(responsePayments, openapigen.Payment{
 			Id:        payment.ID,
 			Merchant:  payment.Merchant,
@@ -48,7 +48,15 @@ func (h *PaymentHandler) GetDashboardV1Payments(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(openapigen.PaymentListResponse{Payments: &responsePayments}); err != nil {
+	if err := json.NewEncoder(w).Encode(openapigen.PaymentListResponse{
+		Payments: responsePayments,
+		Summary: openapigen.PaymentSummary{
+			Total:      result.Summary.Total,
+			Completed:  result.Summary.Completed,
+			Processing: result.Summary.Processing,
+			Failed:     result.Summary.Failed,
+		},
+	}); err != nil {
 		transport.WriteAppError(w, entity.ErrorInternal("internal server error"))
 	}
 }

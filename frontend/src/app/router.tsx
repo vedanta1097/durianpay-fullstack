@@ -2,6 +2,7 @@ import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
 import { LoginPage } from "../features/auth/pages/LoginPage";
 import { useAuthStore } from "../features/auth/store/authStore";
 import { DashboardPage } from "../features/payments/pages/DashboardPage";
+import { AppShell } from "./AppShell";
 
 export function ProtectedRoute() {
   const isAuthenticated = useAuthStore((state) => state.token !== null);
@@ -13,7 +14,10 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      { path: "/dashboard", element: <DashboardPage /> }
+      {
+        element: <AppShell />,
+        children: [{ path: "/dashboard", element: <DashboardPage /> }]
+      }
     ]
   },
   { path: "*", element: <Navigate to="/dashboard" replace /> }

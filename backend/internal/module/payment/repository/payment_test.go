@@ -39,6 +39,17 @@ func TestListPaymentsFiltersAndSortsAgainstSQLite(t *testing.T) {
 	if len(payments) != 2 || payments[0].ID != "PAY-2" || payments[1].ID != "PAY-1" {
 		t.Fatalf("payments = %#v", payments)
 	}
+
+	summary, err := NewPaymentRepo(db).GetPaymentSummary(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := struct {
+		total, completed, processing, failed int
+	}{3, 2, 0, 1}
+	if summary.Total != expected.total || summary.Completed != expected.completed || summary.Processing != expected.processing || summary.Failed != expected.failed {
+		t.Fatalf("summary = %#v", summary)
+	}
 }
 
 func TestParseSortRejectsUnknownColumn(t *testing.T) {

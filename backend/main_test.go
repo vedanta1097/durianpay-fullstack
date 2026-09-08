@@ -88,7 +88,32 @@ func TestLoginThenListPayments(t *testing.T) {
 	if err := json.NewDecoder(paymentResponse.Body).Decode(&payments); err != nil {
 		t.Fatal(err)
 	}
-	if payments.Payments == nil || len(*payments.Payments) == 0 {
+	if len(payments.Payments) == 0 {
 		t.Fatal("completed payment list is empty")
 	}
+	for _, payment := range payments.Payments {
+		if payment.Status != openapigen.PaymentStatusCompleted {
+			t.Fatalf("filtered payment status = %q, want %q", payment.Status, openapigen.PaymentStatusCompleted)
+		}
+	}
+
+	wantSummary := summaryFromPaymentSeeds(paymentSeeds)
+	if payments.Summary != wantSummary {
+		t.Fatalf("payment summary = %#v, want %#v", payments.Summary, wantSummary)
+	}
+}
+
+func summaryFromPaymentSeeds(seeds []paymentSeed) openapigen.PaymentSummary {
+	summary := openapigen.PaymentSummary{Total: len(seeds)}
+	for _, payment := range seeds {
+		switch payment.status {
+		case "completed":
+			summary.Completed++
+		case "processing":
+			summary.Processing++
+		case "failed":
+			summary.Failed++
+		}
+	}
+	return summary
 }

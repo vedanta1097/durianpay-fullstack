@@ -26,15 +26,22 @@ const (
 
 // Defines values for PaymentStatus.
 const (
-	Completed  PaymentStatus = "completed"
-	Failed     PaymentStatus = "failed"
-	Processing PaymentStatus = "processing"
+	PaymentStatusCompleted  PaymentStatus = "completed"
+	PaymentStatusFailed     PaymentStatus = "failed"
+	PaymentStatusProcessing PaymentStatus = "processing"
 )
 
 // Defines values for UserRole.
 const (
 	Cs        UserRole = "cs"
 	Operation UserRole = "operation"
+)
+
+// Defines values for GetDashboardV1PaymentsParamsStatus.
+const (
+	GetDashboardV1PaymentsParamsStatusCompleted  GetDashboardV1PaymentsParamsStatus = "completed"
+	GetDashboardV1PaymentsParamsStatusFailed     GetDashboardV1PaymentsParamsStatus = "failed"
+	GetDashboardV1PaymentsParamsStatusProcessing GetDashboardV1PaymentsParamsStatus = "processing"
 )
 
 // Error defines model for Error.
@@ -54,6 +61,14 @@ type Payment struct {
 
 // PaymentStatus defines model for PaymentStatus.
 type PaymentStatus string
+
+// PaymentSummary defines model for PaymentSummary.
+type PaymentSummary struct {
+	Completed  int `json:"completed"`
+	Failed     int `json:"failed"`
+	Processing int `json:"processing"`
+	Total      int `json:"total"`
+}
 
 // User defines model for User.
 type User struct {
@@ -79,7 +94,8 @@ type LoginResponse = User
 
 // PaymentListResponse defines model for PaymentListResponse.
 type PaymentListResponse struct {
-	Payments *[]Payment `json:"payments,omitempty"`
+	Payments []Payment      `json:"payments"`
+	Summary  PaymentSummary `json:"summary"`
 }
 
 // UnauthorizedError defines model for UnauthorizedError.
@@ -97,11 +113,14 @@ type GetDashboardV1PaymentsParams struct {
 	Sort *Sort `form:"sort,omitempty" json:"sort,omitempty"`
 
 	// Status status of payment (completed , processing , or failed)
-	Status *PaymentStatus `form:"status,omitempty" json:"status,omitempty"`
+	Status *GetDashboardV1PaymentsParamsStatus `form:"status,omitempty" json:"status,omitempty"`
 
 	// Id payment id
 	Id *string `form:"id,omitempty" json:"id,omitempty"`
 }
+
+// GetDashboardV1PaymentsParamsStatus defines parameters for GetDashboardV1Payments.
+type GetDashboardV1PaymentsParamsStatus string
 
 // PostDashboardV1AuthLoginJSONRequestBody defines body for PostDashboardV1AuthLogin for application/json ContentType.
 type PostDashboardV1AuthLoginJSONRequestBody PostDashboardV1AuthLoginJSONBody
@@ -330,25 +349,26 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RXW2/bNhT+K8TZHlqMieS2GQoBe0h3KTKkQJAs20NmLIx0bLMTSZWk0niB/vtwSF0s",
-	"W26MrC97aiOe23fOdz7Sj5AbVRmN2jvIHqESVij0aMNfzlhP/xbocisrL42GDH40Sokjh2TrsWBkxRYS",
-	"y8IdMzo0mlXCe7TaZez2KLdIdn8Jf8teVBYX8oHdHt2yHxjFfcluhTK1pkNt2OhcuPzlnxo4SMr7qUa7",
-	"Bg5aKIQsFsfB5StUgqrEB6Gqko42UgIHv66CvbdSL6FpGg4WXWW0w4DynSgu8VONzv9srbH0KTfaow7Y",
-	"RVWVMheEPfnojN7IFLylvhel7CLQF1crJewaMjiLZ8zGQ3ZnijUzlgUkrO81cLgXZY0xc4GQvUlTDgqd",
-	"E0sqXY7jRAwD8G8tLiCDb5Jhlkk8dUmEFBzGU7z8ck1MOtamhYbDmaZxivIK7T3a5/VpMsLQrGuNDxXm",
-	"gVHBhmEw2mnOyXZzYuCx19do0b6KGg7nZin1ZcuiAzpxWCXXDicLsehrq5k3f6NmQhesdjQhvTBWhTxU",
-	"0oVYK9T+XDr/rMIqayq0XmIrBCFa+L/0qNxTtbfpoekXTlgr1tAMH8zdR8z9FMDWmVHxFOFai9qvjJX/",
-	"YPEcstXBH7UnIyzGRPsgnZN6SaTvFit0dmoNZ5tMux5HzZjaF+lrsO90yCWNZgshSywoVZc1t1iQgSgd",
-	"DPkC/r5n46FGVI/dPGhzlhj43IN83JFLDiQ70lIbb2KIwX6+M9yeiLvpo86PpHr26iSldY5MjjV9/4YS",
-	"SC1VrSBL+US5G/qePQ7OhfB45KXCXdXnIItRZphNGSm0+UpsFQkf2q/sdMrHeeHrQ/fjKhpvt1UWsJG8",
-	"j8m7no0gf6HpV30tqGsVB0YgaAk4jSPHQB7gEAkF8wlEQYd2xodKyHKCIRysKfEQbbskO9KDsCRPci0m",
-	"bMN3XlPg+9ibuKl7VH4UyF2YNDnMayv9+opqjCDvUFi0tHvDX790/Pr1j9+6FwdFiqcDJVbeV3GTSZoD",
-	"PukjgdbvzbnQy9OqYqcXZ6Q0aF3c89lxepwSClOhFpWEDF4fp8evaV7Cr0JVSSHc6s4IWyT3s4RUKCnp",
-	"BgpDMvHZ0WM9K0hRjfM/dU6/zwhQuLMgthidf2eK9X+4IPazoRLOfTa2OHzAvcd88q4YXLytcfv59ipN",
-	"93Gvt0vG93XD4c0hXtsvw+A3e9pv9/pqOJwcknHqnRWY2t9eAQn7LP2Khfax71jfPrIcU2XzGl/iBE/e",
-	"4yZNLjpzPvolcDNd9mCShMd4w7d/KkQZY2bB2kLYi16PGGeDHjFON1uUpJf7HvydJh52se4I7nZxXUmy",
-	"2JMwHAzJtrk8fw4Rp15p/0M6tsIZqLEpmTfzZj5iq3R+Y/yufRmFcJFYtS1b6cySpDS5KFfG+ext+jaF",
-	"Zt78OwBxgiqcoQ4AAA==",
+	"H4sIAAAAAAAC/9RXS2/bRhD+K4tpDwlKm1ScFCmBHpw+AhcJYNh1e3CFes0dSZuSu/Tu0rFq8L8Xs8un",
+	"RFmqm0tPtrTz+Gbmm4ceIdNFqRUqZyF9hJIbXqBD4z9ZbRz9FWgzI0sntYIUftBFwY8skqxDwUiKLSTm",
+	"wh4zetSKldw5NMqm7OYoM0hyf3J3w16UBhfygd0c3bDvGdl9yW54oStFj0qz0Tu32cs/FEQgye9dhWYN",
+	"ESheIKQBXAQ2W2HBCSU+8KLM6WngEiJw69LLOyPVEuq6jsCgLbWy6KN8x8UF3lVo3U/GaENfZVo5VD52",
+	"Xpa5zDjFHn+yWg08eW2p7nkuWwv0ja2Kgps1pHAW3pgJj+xWizXThvlIWJdriOCe5xUGzwIhfZ0kERRo",
+	"LV8ipCDHdkIMfeBfG1xACl/FfS3j8GrjEJJXGFfx4mlMTFrWuIU6gjNF5eT5JZp7NM/L06SFPllXCh9K",
+	"zDyjvAxDL7SVnDebyQmGx1pfIkW7ENURfNBLqS4aFh2QicOQXFmcBGLQVUYxp/9CxbgSrLJUIbXQpvB+",
+	"CNI5Xxeo3Adp3bOAlUaXaJzEZhB4a/5/6bCw+7A37qHuGo4bw9f0uavxQRYuG+nQp3eVNCggve4R9Qbn",
+	"nS99+wkzN5W7xiqjvBCYK8Urt9JG/o3iOTyuvD4qR0Ioxhz+KK2Vakn91PasL9pUh8+GJL4aW01ZscvS",
+	"lyD2ae9LasUWXOYoyFXrNTMoSIDnFnp/Pv4uZ2O+hKge23pQUy7Rt0oX5OPWJB4X2Jvo5beL23F8231Y",
+	"IaMtMHv1JqFJEZokYPr2NTmQShZVAWkSTcAdrI70sVcW3OGRkwVuL5QIpBh5htmUUIEmW/ENkPCx+Zad",
+	"TulYx111aOtdBuHNtEoBA+edzajN2SjkJ5J+2WFBVRWhYBQENUFE5cjQkwciCISC+UREG00+waPW5qiW",
+	"J/vK1rgcKr3dpzPAPNT7bp+e047nI5WT5GmdjZIEA9G/SGBfDb8jttKGBZf5RItFYHSOh+ydC5LzwdGU",
+	"2duswWFjvtXahfeiwdARx0IEBD8sr22eEPUxq4x060vCGIK8RW7Q0PDqP/3cNugvv//aXoNkKbz2PbVy",
+	"rgyjkNamj0+60IHr9/oDV8vTsmSn52c0qtHYMChnx8lxQlHoEhUvJaRwcpwcn1C9uFt5VLHgdnWruRHx",
+	"/SymMR7ndB34IulwEnaxnglaSdq6H1ul32YUkL8nIKQYrXunxfo/LO/dbCi5tZ+1EYcXuNOYXra9ijMV",
+	"bp7Wr5JkF/c6uXh8S9URvD5Ea/Nq93qz/Xrb+7+O4M0hHqdu4Hp43oSrkH2WbsV8+tg3rEsfSY6pMjyx",
+	"ljjBk/c4pMl5f/8Mf6VdT8PuRWL/Q6mONn/GhT3A9II1QNiLbh6xiPXziEV0GoSR9HLXj7F2qfSUfP6W",
+	"2MbaIpRih38pRr43Dc6fw8upg/p/yM5mjnqmDCfo9byej8grrRuwwTaXpjcXeFaZvJmkaRznOuP5SluX",
+	"vk3eJlDP638GADd1Z8VMEAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

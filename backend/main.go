@@ -73,6 +73,8 @@ func initDB(db *sql.DB) error {
 		  amount INTEGER NOT NULL CHECK (amount >= 0),
 		  created_at DATETIME NOT NULL
 		);`,
+		`CREATE INDEX IF NOT EXISTS idx_payments_created_at_id ON payments(created_at DESC, id DESC);`,
+		`CREATE INDEX IF NOT EXISTS idx_payments_status_created_at_id ON payments(status, created_at DESC, id DESC);`,
 	}
 	for _, s := range stmts {
 		if _, err := db.Exec(s); err != nil {

@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import { useAuthStore } from "../../features/auth/store/authStore";
 import type { paths } from "./openapi";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
 export const apiClient = createClient<paths>({ baseUrl });
 

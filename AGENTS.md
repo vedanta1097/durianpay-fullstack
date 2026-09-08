@@ -17,7 +17,8 @@ When sources conflict, preserve the assignment requirement, document the interpr
 
 - Implement login at `POST /dashboard/v1/auth/login` with email/password and a JWT plus role response.
 - Supported roles are exactly `cs` and `operation`. No role-specific permissions are defined; do not invent any.
-- Implement authenticated payment listing at `GET /dashboard/v1/payments` and status filtering for exactly `completed`, `processing`, and `failed`.
+- Implement authenticated payment listing at `GET /dashboard/v1/payments` and server-side status filtering for exactly `completed`, `processing`, and `failed`.
+- The payment response contains the filtered `payments` array and a global `summary` with total/completed/processing/failed counts. Dashboard summary values come from this response rather than recounting the returned rows.
 - Dashboard is protected and shows Payment ID, Merchant Name, Date, Amount, Status, total count, and counts for every status.
 - Keep the repository as a single repo with `backend/` and `frontend/` directories.
 - Required deliverables include a root README, root Makefile, root OpenAPI spec, seed data/instructions, exact build/run/test commands, backend tests, frontend tests, and clear API-base configuration.
@@ -80,7 +81,7 @@ When sources conflict, preserve the assignment requirement, document the interpr
 - Organize source by feature. Auth and payments each own their API code, components, pages, and feature state; do not create top-level `pages/`, `stores/`, or feature-specific global component folders.
 - Reserve `app/` for root composition/router and `shared/` for code with genuine cross-feature reuse. Do not move code to `shared/` in anticipation of reuse.
 - Zustand owns the minimal persisted auth session. Do not copy token, role, or email into other state containers.
-- Keep page-local UI state local. Derive filtered payments and summary values from the canonical payment array; do not synchronize duplicate derived state with effects.
+- Keep page-local UI state local. Treat the payment endpoint response as canonical: changing the status filter triggers a new request, the table renders its `payments`, and the summary renders its global `summary`. Do not maintain a second client-filtered payment array or recount summary values from the returned rows.
 - Read the bearer token at request time in the single API boundary. On `401`, clear the session and send the user to login.
 - Model loading, success, empty, filtered-empty, error/retry, and expired-session states explicitly.
 - Keep components focused on one feature-level responsibility. Prefer composition over highly configurable components.

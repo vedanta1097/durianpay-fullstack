@@ -4,11 +4,21 @@ Go API for the internal payment dashboard. It uses SQLite, creates the schema on
 
 ## Run locally
 
+The easiest way to run the complete application is from the repository root:
+
 ```bash
-cp env.sample .env
 make setup
 make run
 ```
+
+To run only the backend from this directory:
+
+```bash
+make setup
+make run
+```
+
+`make setup` creates `.env` from `env.sample` only when `.env` does not already exist.
 
 The API listens on `http://localhost:8080` by default. The root OpenAPI contract is at `../openapi.yaml`.
 

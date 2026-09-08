@@ -89,6 +89,31 @@ components:
         - processing
         - failed
 
+    PaymentSummary:
+      type: object
+      required:
+        - total
+        - completed
+        - processing
+        - failed
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          example: 30
+        completed:
+          type: integer
+          minimum: 0
+          example: 13
+        processing:
+          type: integer
+          minimum: 0
+          example: 9
+        failed:
+          type: integer
+          minimum: 0
+          example: 8
+
   responses:
     LoginResponse:
       description: return token and user information
@@ -102,11 +127,16 @@ components:
         application/json:
           schema:
             type: object
+            required:
+              - payments
+              - summary
             properties:
               payments:
                 type: array
                 items:
                   $ref: '#/components/schemas/Payment'
+              summary:
+                $ref: '#/components/schemas/PaymentSummary'
     UnauthorizedError:
       description: Authentication failed or missing credentials
       content:
@@ -178,7 +208,11 @@ paths:
         - in: query
           name: status
           schema:
-            $ref: '#/components/schemas/PaymentStatus'
+            type: string
+            enum:
+              - completed
+              - processing
+              - failed
           description: status of payment (completed , processing , or failed)
         - in: query
           name: id

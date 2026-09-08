@@ -17,6 +17,7 @@ type ListFilter struct {
 
 type PaymentRepository interface {
 	ListPayments(ctx context.Context, filter ListFilter) ([]entity.Payment, error)
+	GetPaymentSummary(ctx context.Context) (entity.PaymentSummary, error)
 }
 
 type Payment struct {
@@ -64,6 +65,28 @@ func (r *Payment) ListPayments(ctx context.Context, filter ListFilter) ([]entity
 	}
 
 	return payments, nil
+}
+
+func (r *Payment) GetPaymentSummary(ctx context.Context) (entity.PaymentSummary, error) {
+	const query = `SELECT
+		COUNT(*),
+		COALESCE(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0)
+	FROM payments`
+
+	var summary entity.PaymentSummary
+	err := r.db.QueryRowContext(ctx, query).Scan(
+		&summary.Total,
+		&summary.Completed,
+		&summary.Processing,
+		&summary.Failed,
+	)
+	if err != nil {
+		return entity.PaymentSummary{}, entity.WrapError(err, entity.ErrorCodeInternal, "failed to summarize payments")
+	}
+
+	return summary, nil
 }
 
 func ParseSort(sort string) (string, error) {
