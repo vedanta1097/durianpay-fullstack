@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/durianpay/fullstack-boilerplate/internal/openapigen"
@@ -55,5 +56,32 @@ func TestServerHealthCheckDoesNotRequireAuthentication(t *testing.T) {
 
 	if response.Code != http.StatusNoContent {
 		t.Fatalf("health check status = %d", response.Code)
+	}
+}
+
+func TestServerServesOpenAPIDocumentation(t *testing.T) {
+	server := NewServer(apiStub{}, "../../../../openapi.yaml", nil)
+	tests := []struct {
+		path         string
+		bodyContains string
+	}{
+		{path: "/openapi.yaml", bodyContains: "openapi: 3.0.3"},
+		{path: "/swagger/index.html", bodyContains: "/openapi.yaml"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.path, func(t *testing.T) {
+			request := httptest.NewRequest(http.MethodGet, test.path, nil)
+			response := httptest.NewRecorder()
+
+			server.Routes().ServeHTTP(response, request)
+
+			if response.Code != http.StatusOK {
+				t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+			}
+			if !strings.Contains(response.Body.String(), test.bodyContains) {
+				t.Fatalf("body does not contain %q", test.bodyContains)
+			}
+		})
 	}
 }

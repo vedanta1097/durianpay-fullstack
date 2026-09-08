@@ -55,6 +55,7 @@ When sources conflict, preserve the assignment requirement, document the interpr
 - Commit generated results and include a drift check in `make generate-check`.
 - Backend handlers must use generated types. Frontend requests and responses must use generated types through the typed API client.
 - Keep enum values, JSON names, required fields, error shapes, examples, and HTTP status codes aligned across contract, code, and tests.
+- Swagger UI at `/swagger/index.html` is a presentation layer for the root `openapi.yaml`, served at `/openapi.yaml`. Do not run `swag init` or add Swaggo annotations that create a second API specification.
 - Amounts are integer values and must never be represented with floating point. Timestamps are RFC 3339 UTC strings at the API boundary.
 
 ## Backend standards

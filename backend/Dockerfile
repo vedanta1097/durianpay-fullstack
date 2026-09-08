@@ -21,9 +21,11 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=build /out/durianpay-api ./durianpay-api
+COPY openapi.yaml ./openapi.yaml
 
 ENV HTTP_ADDR=:8080
 ENV DB_PATH=/data/dashboard.db
+ENV OPENAPIYAML_LOCATION=/app/openapi.yaml
 
 EXPOSE 8080
 
