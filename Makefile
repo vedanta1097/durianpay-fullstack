@@ -4,7 +4,7 @@ BACKEND_DIR := backend
 FRONTEND_DIR := frontend
 NPM ?= npm
 
-.PHONY: help setup run run-backend run-frontend generate generate-check format format-check lint test build frontend-typecheck
+.PHONY: help setup run run-backend run-frontend docker-up docker-down docker-logs generate generate-check format format-check lint test build frontend-typecheck
 
 help:
 	@echo "Available targets:"
@@ -12,6 +12,9 @@ help:
 	@echo "  make run            - run backend and frontend development servers"
 	@echo "  make run-backend    - run only the backend development server"
 	@echo "  make run-frontend   - run only the frontend development server"
+	@echo "  make docker-up      - build and run the application with Docker Compose"
+	@echo "  make docker-down    - stop Docker Compose services"
+	@echo "  make docker-logs    - follow Docker Compose logs"
 	@echo "  make generate       - regenerate backend and frontend OpenAPI code"
 	@echo "  make generate-check - fail if generated OpenAPI code is stale"
 	@echo "  make format         - format backend Go files"
@@ -33,6 +36,15 @@ run-backend:
 
 run-frontend:
 	$(NPM) --prefix $(FRONTEND_DIR) run dev
+
+docker-up:
+	docker compose up --build
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs --follow
 
 generate:
 	$(MAKE) -C $(BACKEND_DIR) openapi-gen

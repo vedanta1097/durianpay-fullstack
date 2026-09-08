@@ -1,0 +1,11 @@
+.git
+.DS_Store
+backend/.env
+backend/bin
+backend/dashboard.db
+backend/dashboard.db-shm
+backend/dashboard.db-wal
+frontend/node_modules
+frontend/dist
+frontend/.env
+frontend/*.tsbuildinfo

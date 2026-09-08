@@ -45,3 +45,15 @@ func TestServerRequiresAndPassesBearerToken(t *testing.T) {
 		t.Fatalf("valid token status = %d, body = %s", authorizedResponse.Code, authorizedResponse.Body.String())
 	}
 }
+
+func TestServerHealthCheckDoesNotRequireAuthentication(t *testing.T) {
+	server := NewServer(apiStub{}, "../openapi.yaml", nil)
+	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	response := httptest.NewRecorder()
+
+	server.Routes().ServeHTTP(response, request)
+
+	if response.Code != http.StatusNoContent {
+		t.Fatalf("health check status = %d", response.Code)
+	}
+}

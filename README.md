@@ -1,107 +1,71 @@
 # DurianPay Payment Dashboard
 
-A small full-stack internal dashboard for authenticating support/operations users and reviewing incoming payments. The backend is a Go HTTP API backed by SQLite; the frontend is a React, TypeScript, Zustand, and Tailwind CSS single-page application.
+An internal dashboard for Customer Support and Operation users to monitor incoming payments.
 
-## Prerequisites
-
-- Go 1.21 or newer
-- Node.js 20 or newer and npm
-- Make
-- A C compiler for `github.com/mattn/go-sqlite3`
-  - On macOS: install Xcode Command Line Tools with `xcode-select --install`
+- Backend: Go 1.21+, SQLite, OpenAPI
+- Frontend: React, TypeScript, Zustand, Tailwind CSS
 
 ## Quick start
 
-From the repository root, install both backend and frontend dependencies:
+### Option 1 - Native with Make
+
+Requirements: Go 1.21+, Node.js 20+, npm, Make, and a C compiler for SQLite. On macOS, install the compiler with:
 
 ```bash
-make setup
+xcode-select --install
 ```
 
-The setup command also creates `backend/.env` from `backend/env.sample` when it does not already exist. Existing environment configuration is never overwritten.
-
-Run both development servers with one command:
+From the repository root:
 
 ```bash
+# 1. Download Go and npm dependencies
+make setup
+
+# 2. Start the backend and frontend
 make run
 ```
 
-Open [http://localhost:5173](http://localhost:5173). The Vite development server proxies `/dashboard/v1` API requests to the backend at `http://localhost:8080`.
+Open [http://localhost:5173](http://localhost:5173). Press `Ctrl+C` to stop both services.
 
-Stop both servers with `Ctrl+C`.
+`make setup` creates `backend/.env` from `backend/env.sample` only when it does not already exist. Edit that file only when you need to override the backend address, database path, or JWT settings.
 
-### Seed accounts
+No frontend `.env` is required for local development because Vite proxies `/dashboard/v1` to the backend. To use another API origin, copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_BASE_URL`.
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Customer Support | `cs@test.com` | `password` |
-| Operation | `operation@test.com` | `password` |
-
-The SQLite schema and deterministic demo data are initialized idempotently when the backend starts. The default local database is `backend/dashboard.db`.
-
-## Run one service at a time
-
-Use two terminal windows when you want to inspect each service independently.
-
-Backend:
+To run each service separately:
 
 ```bash
+# Terminal 1 - Go API at http://localhost:8080
 make run-backend
-```
 
-Frontend:
-
-```bash
+# Terminal 2 - Vite app at http://localhost:5173
 make run-frontend
 ```
 
-The equivalent service-local commands are `make -C backend run` and `npm --prefix frontend run dev`.
+### Option 2 - Docker Compose
 
-## Configuration
+Requirements: Docker Desktop with Docker Compose, and Make. Go and Node.js are not required on the host.
 
-Backend defaults live in `backend/env.sample`:
+```bash
+make docker-up
+```
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `HTTP_ADDR` | `:8080` | Backend listen address |
-| `OPENAPIYAML_LOCATION` | `../openapi.yaml` | OpenAPI contract path from the backend directory |
-| `DB_PATH` | `dashboard.db` | SQLite database path from the backend directory |
-| `JWT_SECRET` | `your-very-secret` | Local JWT signing secret; replace outside local development |
-| `JWT_EXPIRED` | `24h` | JWT lifetime |
+Open [http://localhost:8080](http://localhost:8080). Press `Ctrl+C` or run `make docker-down` to stop the application.
 
-The frontend normally needs no local environment file because its development proxy targets port 8080. To use another API origin, copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_BASE_URL`.
+## Login and seed data
 
-## API
+| Role             | Email                | Password   |
+| ---------------- | -------------------- | ---------- |
+| Customer Support | `cs@test.com`        | `password` |
+| Operation        | `operation@test.com` | `password` |
 
-The hand-authored API contract is [`openapi.yaml`](openapi.yaml). Generated backend and frontend types are committed, so code generation is not required to run the application.
+The backend creates the SQLite schema and deterministic seed data at startup.
 
-| Method | Path | Authentication |
-| --- | --- | --- |
-| `POST` | `/dashboard/v1/auth/login` | Public |
-| `GET` | `/dashboard/v1/payments` | Bearer token |
+- Native database: `backend/dashboard.db`
+- Docker database: `dashboard-data` named volume
 
-The payments endpoint supports the `status` and `sort` query parameters defined in the OpenAPI contract. Its response contains the matching `payments` array plus a global `summary` with total, completed, processing, and failed counts. Selecting a dashboard status makes a new server request; the summary stays global while the table is filtered.
+The databases are separate. `make docker-down` preserves the Docker volume. To reset it, run `docker compose down --volumes`.
 
-## Development commands
-
-Run these commands from the repository root:
-
-| Command | Purpose |
-| --- | --- |
-| `make help` | List available commands |
-| `make setup` | Install backend and frontend dependencies |
-| `make run` | Run backend and frontend together |
-| `make run-backend` | Run only the Go API |
-| `make run-frontend` | Run only the Vite frontend |
-| `make generate` | Regenerate backend and frontend OpenAPI code |
-| `make generate-check` | Check generated OpenAPI code for drift |
-| `make format` | Format Go code |
-| `make format-check` | Check Go formatting |
-| `make lint` | Run Go vet and TypeScript type checking |
-| `make test` | Run all backend and frontend tests |
-| `make build` | Build both applications |
-
-## Build and preview
+## Build and test
 
 Build both applications:
 
@@ -109,33 +73,19 @@ Build both applications:
 make build
 ```
 
-Run the compiled backend:
+For a production-like end-to-end run, use:
 
 ```bash
-cd backend
-./bin/mygolangapp
+make docker-up
 ```
 
-Preview the built frontend locally in another terminal:
-
-```bash
-npm --prefix frontend run preview
-```
-
-`vite preview` is intended for reviewing the production build locally. A real deployment should serve `frontend/dist` through a production static-file server and route `/dashboard` to the Go API.
-
-## Testing strategy
+Run all backend and frontend tests:
 
 ```bash
 make test
 ```
 
-- Frontend page/component tests mock their typed API modules with Vitest.
-- Frontend API-client tests stub `fetch`; they never contact a real server.
-- Backend handler and use-case tests use mocks or `httptest`.
-- SQLite integration tests use isolated in-memory or temporary test databases and never touch `backend/dashboard.db`.
-
-Before submitting or reviewing a change, run:
+To run the complete quality check:
 
 ```bash
 make generate-check
@@ -144,3 +94,34 @@ make lint
 make test
 make build
 ```
+
+Testing strategy:
+
+- Backend handlers and use cases use mocks or `httptest`.
+- SQLite integration tests use isolated in-memory or temporary databases.
+- Frontend component and API tests mock the API client or `fetch` with Vitest.
+- Tests never contact a real API or the runtime database.
+
+## API documentation
+
+The OpenAPI v3 contract is [`openapi.yaml`](openapi.yaml). Open it with an OpenAPI or Swagger preview extension.
+
+| Method | Path                       | Authentication |
+| ------ | -------------------------- | -------------- |
+| `POST` | `/dashboard/v1/auth/login` | Public         |
+| `GET`  | `/dashboard/v1/payments`   | Bearer token   |
+
+The payments endpoint supports the `status` and `sort` query parameters. Its response contains the filtered `payments` and a global status `summary`.
+
+Backend and frontend types are generated from `openapi.yaml` and committed. After changing the contract, run:
+
+```bash
+make generate
+```
+
+## Technical notes
+
+- The frontend uses generated OpenAPI types through a typed API client.
+- Zustand stores only the persisted login session.
+- Payment filtering runs in the backend; dashboard totals come from the API summary.
+- More backend details are available in [`backend/README.md`](backend/README.md).

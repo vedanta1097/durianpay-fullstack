@@ -22,6 +22,8 @@ make run
 
 The API listens on `http://localhost:8080` by default. The root OpenAPI contract is at `../openapi.yaml`.
 
+For the complete Docker Compose workflow, use the root [README](../README.md).
+
 Seed users:
 
 - `cs@test.com` / `password`
