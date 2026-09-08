@@ -44,41 +44,17 @@ This starts both the Go backend at `http://localhost:8080` and the Vite frontend
 
 Open [http://localhost:5173](http://localhost:5173). Press `Ctrl+C` to stop both services.
 
----
-
-## Run the backend locally
-
-```bash
-make run-backend
-```
-
-The API runs at [http://localhost:8080](http://localhost:8080).
-
-## Run the backend production build
-
-```bash
-make -C backend build
-cd backend
-./bin/mygolangapp
-```
-
----
-
-## Run the frontend locally
-
-Start the backend first, then run:
-
-```bash
-make run-frontend
-```
-
-The frontend runs at [http://localhost:5173](http://localhost:5173). No frontend `.env` is required because Vite proxies `/dashboard/v1` to the backend.
+No frontend `.env` is required because Vite proxies `/dashboard/v1` to the local backend.
 
 To use another API origin, copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_BASE_URL`.
 
-## Run the frontend production build
+For commands that run or build only one service, see the [backend README](backend/README.md) and [frontend README](frontend/README.md).
 
-Docker Compose builds the frontend and serves it through Nginx together with the Go API:
+---
+
+## Run the full app production build
+
+Docker Compose builds the Go backend binary and the React production assets, then runs them together behind Nginx:
 
 ```bash
 make docker-up
