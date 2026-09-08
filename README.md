@@ -40,6 +40,8 @@ The setup command creates `backend/.env` from `backend/env.sample` only when it 
 make run
 ```
 
+This starts both the Go backend at `http://localhost:8080` and the Vite frontend at `http://localhost:5173` for local development.
+
 Open [http://localhost:5173](http://localhost:5173). Press `Ctrl+C` to stop both services.
 
 ---
