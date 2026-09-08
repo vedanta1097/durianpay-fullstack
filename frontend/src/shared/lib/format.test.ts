@@ -7,9 +7,17 @@ describe("payment formatters", () => {
     expect(formatIDR(125000)).not.toContain(",00");
   });
 
-  it("formats timestamps in Jakarta time", () => {
-    const formatted = formatPaymentDate("2026-03-10T08:15:00Z");
-    expect(formatted).toContain("10 Mar 2026");
-    expect(formatted).toContain("15.15");
+  it("formats timestamps in the browser timezone with a colon-separated time", () => {
+    const value = "2026-03-10T08:15:00Z";
+    const expected = new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).format(new Date(value));
+
+    expect(formatPaymentDate(value)).toBe(expected);
   });
 });

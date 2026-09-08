@@ -5,14 +5,13 @@ const amountFormatter = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0
 });
 
-const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
   month: "short",
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
-  hourCycle: "h23",
-  timeZone: "Asia/Jakarta"
+  hourCycle: "h23"
 });
 
 export function formatIDR(amount: number): string {
@@ -20,5 +19,5 @@ export function formatIDR(amount: number): string {
 }
 
 export function formatPaymentDate(value: string): string {
-  return dateFormatter.format(new Date(value)).replace(" pukul ", ", ");
+  return dateFormatter.format(new Date(value));
 }
